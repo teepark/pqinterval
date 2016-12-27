@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+// ParseErr is returned on a failure to parse a
+// postgres result into an Interval or Duration.
+type ParseErr struct {
+	String string
+	Cause  error
+}
+
 func parse(s string) (Interval, error) {
 	chunks := strings.Split(s, " ")
 
@@ -62,14 +69,15 @@ func parse(s string) (Interval, error) {
 		var us int
 
 		if t != "" {
-			t = strings.TrimLeft(strings.Repeat("0", 6-len(t)), "0")
+			t += strings.Repeat("0", 6-len(t))
 			us, err = strconv.Atoi(t)
 			if err != nil {
 				return ival, ParseErr{s, err}
 			}
 
-			us += secs*usPerSec + mins*usPerMin
 		}
+
+		us += secs*usPerSec + mins*usPerMin
 
 		ival.hrs = int32(hrs)
 		ival.us = uint32(us)
@@ -111,11 +119,7 @@ func parse(s string) (Interval, error) {
 	return ival, nil
 }
 
-type ParseErr struct {
-	String string
-	Cause  error
-}
-
+// Error implements the error interface.
 func (pe ParseErr) Error() string {
 	return fmt.Sprintf("pqinterval: Error parsing %q: %s", pe.String, pe.Cause)
 }

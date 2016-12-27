@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Interval can represent the full range of PostgreSQL's interval type.
 type Interval struct {
 	// the top bit is the sign for the microseconds,
 	// bottom 29 are the signed year.
@@ -18,12 +19,14 @@ type Interval struct {
 	us uint32
 }
 
+// New creates an Interval.
 func New(years, days, hours, minutes, seconds, microseconds int) Interval {
 	if years > maxYear || years < minYear || hours > maxHour || hours < minHour {
 		panic("interval outside range")
 	}
 	microseconds += seconds*usPerSec + minutes*usPerMin
 
+	hours += days * 24
 	hours += microseconds / usPerHr
 	microseconds %= usPerHr
 
@@ -42,6 +45,7 @@ func New(years, days, hours, minutes, seconds, microseconds int) Interval {
 	}
 }
 
+// Years returns the number of years in the interval.
 func (ival Interval) Years() int32 {
 	years := int32(ival.yrs & (yrSignBit - 1))
 	if ival.yrs&yrSignBit != 0 {
@@ -50,10 +54,13 @@ func (ival Interval) Years() int32 {
 	return years
 }
 
+// Hours returns the number of hours in the interval.
 func (ival Interval) Hours() int32 {
 	return ival.hrs
 }
 
+// Microseconds returns the number of microseconds in the interval,
+// up to the number of microseconds in an hour.
 func (ival Interval) Microseconds() int64 {
 	us := int64(ival.us)
 	if ival.yrs&usSignBit != 0 {
@@ -62,6 +69,7 @@ func (ival Interval) Microseconds() int64 {
 	return us
 }
 
+// Scan implements sql.Scanner.
 func (ival *Interval) Scan(src interface{}) error {
 	var s string
 	switch x := src.(type) {
