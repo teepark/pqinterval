@@ -8,7 +8,7 @@ database interval should successfully `Scan()` into a `pqinterval.Interval`.
 
 Example:
 
-```go
+```golang
 var ival pqinterval.Interval
 
 err := conn.QueryRow("SELECT '4 days'::INTERVAL").Scan(&ival)
@@ -24,7 +24,7 @@ scanning from PostgreSQL intervals (potentially failing with `ErrTooBig`).
 
 Example:
 
-```go
+```golang
 var since time.Duration
 d := (*pqinterval.Duration)(&since)
 
