@@ -1,7 +1,10 @@
 package pqinterval
 
 import (
+	"database/sql/driver"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -90,6 +93,55 @@ func (ival *Interval) Scan(src interface{}) error {
 
 	*ival = result
 	return nil
+}
+
+// Value implements driver.Valuer.
+func (ival Interval) Value() (driver.Value, error) {
+	var years, months, days, hours, mins, secs, msecs, usecs int
+	years = int(ival.Years())
+	hours = int(ival.Hours())
+	usecs = int(ival.Microseconds())
+	days, hours = divmod(hours, 24)
+	months, days = divmod(days, daysPerMon)
+	mins, usecs = divmod(usecs, usPerMin)
+	secs, usecs = divmod(usecs, usPerSec)
+	msecs, usecs = divmod(usecs, 1000)
+	return formatInput(years, months, days, hours, mins, secs, msecs, usecs), nil
+}
+
+// formatValue produces a string in the format that postgres expects for interval input.
+// (https://www.postgresql.org/docs/current/static/datatype-datetime.html#DATATYPE-INTERVAL-INPUT)
+func formatInput(years, months, days, hours, mins, secs, msecs, usecs int) string {
+	pieces := make([]string, 0, 8)
+	if years != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d years", years))
+	}
+	if months != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d months", months))
+	}
+	if days != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d days", days))
+	}
+	if hours != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d hours", hours))
+	}
+	if mins != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d minutes", mins))
+	}
+	if secs != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d seconds", secs))
+	}
+	if msecs != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d milliseconds", msecs))
+	}
+	if usecs != 0 {
+		pieces = append(pieces, fmt.Sprintf("%d microseconds", usecs))
+	}
+	return strings.Join(pieces, " ")
+}
+
+func divmod(num int, denom int) (int, int) {
+	return num / denom, num % denom
 }
 
 const (

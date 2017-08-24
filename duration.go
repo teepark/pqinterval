@@ -1,6 +1,7 @@
 package pqinterval
 
 import (
+	"database/sql/driver"
 	"errors"
 	"math"
 	"time"
@@ -60,4 +61,18 @@ func (d *Duration) Scan(src interface{}) error {
 
 	*d = Duration(result)
 	return nil
+}
+
+// Value implements driver.Valuer.
+func (d Duration) Value() (driver.Value, error) {
+	var years, months, days, hours, minutes, seconds, milliseconds, microseconds int
+	microseconds = int(d / Duration(time.Microsecond))
+	years, microseconds = divmod(microseconds, int(time.Hour*hrsPerYr))
+	months, microseconds = divmod(microseconds, int(time.Hour*24*30))
+	days, microseconds = divmod(microseconds, int(time.Hour*24))
+	hours, microseconds = divmod(microseconds, int(time.Hour))
+	minutes, microseconds = divmod(microseconds, int(time.Minute))
+	seconds, microseconds = divmod(microseconds, int(time.Second))
+	milliseconds, microseconds = divmod(microseconds, int(time.Millisecond))
+	return formatInput(years, months, days, hours, minutes, seconds, milliseconds, microseconds), nil
 }
