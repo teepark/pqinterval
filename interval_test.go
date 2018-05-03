@@ -36,7 +36,7 @@ func TestIntervalValue(t *testing.T) {
 	assert.Nil(t, err, "Interval.Value() error")
 	assert.EqualValues(
 		t,
-		"3 years 6 months 2 days 1 hours 22 minutes 33 seconds 456 milliseconds 789 microseconds",
+		"3 years 182 days 1 hours 22 minutes 33 seconds 456 milliseconds 789 microseconds",
 		val,
 		"Interval.Value() result")
 }

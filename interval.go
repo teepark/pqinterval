@@ -102,7 +102,6 @@ func (ival Interval) Value() (driver.Value, error) {
 	hours = int(ival.Hours())
 	usecs = int(ival.Microseconds())
 	days, hours = divmod(hours, 24)
-	months, days = divmod(days, daysPerMon)
 	mins, usecs = divmod(usecs, usPerMin)
 	secs, usecs = divmod(usecs, usPerSec)
 	msecs, usecs = divmod(usecs, 1000)

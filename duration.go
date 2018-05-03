@@ -68,12 +68,11 @@ func (d Duration) Value() (driver.Value, error) {
 	var years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds int
 	nanoseconds = int(d / Duration(time.Nanosecond))
 	years, nanoseconds = divmod(nanoseconds, int(time.Hour*hrsPerYr))
-	months, nanoseconds = divmod(nanoseconds, int(time.Hour*24*30))
 	days, nanoseconds = divmod(nanoseconds, int(time.Hour*24))
 	hours, nanoseconds = divmod(nanoseconds, int(time.Hour))
 	minutes, nanoseconds = divmod(nanoseconds, int(time.Minute))
 	seconds, nanoseconds = divmod(nanoseconds, int(time.Second))
 	milliseconds, nanoseconds = divmod(nanoseconds, int(time.Millisecond))
-	microseconds, nanoseconds = divmod(nanoseconds, int(time.Microsecond))
+	microseconds, _ = divmod(nanoseconds, int(time.Microsecond))
 	return formatInput(years, months, days, hours, minutes, seconds, milliseconds, microseconds), nil
 }
