@@ -35,3 +35,9 @@ if err != nil {
 
 fmt.Println(since)
 ```
+
+One caveat to be aware of: while PostgreSQL intervals are capable of modeling
+a number of "months", the `Interval` and `Duration` types here are not. Any
+time they scan an `"x months"` interval they will assume 30 days in a month.
+PostgreSQL avoids this ambiguity however when subtracting distant timestamps,
+by providing a large number of days rather than breaking them down into months.
