@@ -133,7 +133,7 @@ func formatInput(years, months, days, hours, mins, secs, msecs, usecs int) strin
 	if msecs != 0 {
 		pieces = append(pieces, fmt.Sprintf("%d milliseconds", msecs))
 	}
-	if usecs != 0 {
+	if usecs != 0 || len(pieces) == 0 {
 		pieces = append(pieces, fmt.Sprintf("%d microseconds", usecs))
 	}
 	return strings.Join(pieces, " ")

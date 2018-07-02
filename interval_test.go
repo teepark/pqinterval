@@ -40,3 +40,15 @@ func TestIntervalValue(t *testing.T) {
 		val,
 		"Interval.Value() result")
 }
+
+func TestZeroInterval(t *testing.T) {
+	i := new(Interval)
+	assert.NoError(t, i.Scan("00:00:00"), "Interval.Scan() error")
+	assert.EqualValues(t, 0, i.Microseconds(), "Interval.Scan() result")
+	assert.EqualValues(t, 0, i.Hours(), "Interval.Scan() result")
+	assert.EqualValues(t, 0, i.Years(), "Interval.Scan() result")
+
+	val, err := i.Value()
+	assert.Nil(t, err, "Interval.Value() error")
+	assert.EqualValues(t, "0 microseconds", val, "Interval.Value() result")
+}

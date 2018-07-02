@@ -29,3 +29,13 @@ func TestDurationValue(t *testing.T) {
 		val,
 		"Duration.Value() compatibility with time.Duration")
 }
+
+func TestZeroDuration(t *testing.T) {
+	i := new(Duration)
+	assert.NoError(t, i.Scan("00:00:00"), "Duration.Scan() error")
+	assert.EqualValues(t, time.Duration(0), *i, "Duration.Scan() result")
+
+	val, err := i.Value()
+	assert.Nil(t, err, "Duration.Value() error")
+	assert.EqualValues(t, "0 microseconds", val, "Duration.Value() result")
+}
