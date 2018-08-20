@@ -84,14 +84,14 @@ func TestParseMinutes(t *testing.T) {
 
 	assert.EqualValues(t, 0, i.yrs, "parsed interval yrs")
 	assert.EqualValues(t, 0, i.hrs, "parsed interval hrs")
-	assert.EqualValues(t, 43*60*1000000, i.us, "parsed interval us")
+	assert.EqualValues(t, int64(43)*60*1000000, i.us, "parsed interval us")
 }
 
 func TestParseNegativeMinutes(t *testing.T) {
 	i, err := parse("-00:07:00")
 	assert.Nil(t, err, "parse error")
 
-	assert.EqualValues(t, usSignBit, i.yrs, "parsed interval yrs")
+	assert.EqualValues(t, int64(usSignBit), i.yrs, "parsed interval yrs")
 	assert.EqualValues(t, 0, i.hrs, "parsed interval hrs")
 	assert.EqualValues(t, 7*60*1000000, i.us, "parsed interval us")
 }
@@ -109,7 +109,7 @@ func TestParseNegativeSeconds(t *testing.T) {
 	i, err := parse("-00:00:41")
 	assert.Nil(t, err, "parse error")
 
-	assert.EqualValues(t, usSignBit, i.yrs, "parsed interval yrs")
+	assert.EqualValues(t, int64(usSignBit), i.yrs, "parsed interval yrs")
 	assert.EqualValues(t, 0, i.hrs, "parsed interval hrs")
 	assert.EqualValues(t, 41*1000000, i.us, "parsed interval us")
 }
@@ -136,7 +136,7 @@ func TestParseNegativeMicroseconds(t *testing.T) {
 	i, err := parse("-00:00:00.0011")
 	assert.Nil(t, err, "parse error")
 
-	assert.EqualValues(t, usSignBit, i.yrs, "parsed interval yrs")
+	assert.EqualValues(t, int64(usSignBit), i.yrs, "parsed interval yrs")
 	assert.EqualValues(t, 0, i.hrs, "parsed interval hrs")
 	assert.EqualValues(t, 1100, i.us, "parsed interval us")
 }
@@ -154,7 +154,7 @@ func TestParseCombined(t *testing.T) {
 	)
 	assert.EqualValues(
 		t,
-		44*60*1000000+18*1000000+472719,
+		int64(44)*60*1000000+18*1000000+472719,
 		i.us,
 		"parsed interval us",
 	)
@@ -164,7 +164,7 @@ func TestParseCombinedNegative(t *testing.T) {
 	i, err := parse("-14 years -2 mons -8 days -11:22:33.456789")
 	assert.Nil(t, err, "parse error")
 
-	assert.EqualValues(t, yrSignBit|usSignBit|14, i.yrs, "parsed interval yrs")
+	assert.EqualValues(t, int64(yrSignBit)|usSignBit|14, i.yrs, "parsed interval yrs")
 	assert.EqualValues(
 		t,
 		-2*30*24-8*24-11,

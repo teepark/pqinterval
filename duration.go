@@ -65,14 +65,14 @@ func (d *Duration) Scan(src interface{}) error {
 
 // Value implements driver.Valuer.
 func (d Duration) Value() (driver.Value, error) {
-	var years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds int
-	nanoseconds = int(d / Duration(time.Nanosecond))
-	years, nanoseconds = divmod(nanoseconds, int(time.Hour*hrsPerYr))
-	days, nanoseconds = divmod(nanoseconds, int(time.Hour*24))
-	hours, nanoseconds = divmod(nanoseconds, int(time.Hour))
-	minutes, nanoseconds = divmod(nanoseconds, int(time.Minute))
-	seconds, nanoseconds = divmod(nanoseconds, int(time.Second))
-	milliseconds, nanoseconds = divmod(nanoseconds, int(time.Millisecond))
-	microseconds, _ = divmod(nanoseconds, int(time.Microsecond))
+	var years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds int64
+	nanoseconds = int64(d / Duration(time.Nanosecond))
+	years, nanoseconds = divmod(nanoseconds, int64(time.Hour*hrsPerYr))
+	days, nanoseconds = divmod(nanoseconds, int64(time.Hour*24))
+	hours, nanoseconds = divmod(nanoseconds, int64(time.Hour))
+	minutes, nanoseconds = divmod(nanoseconds, int64(time.Minute))
+	seconds, nanoseconds = divmod(nanoseconds, int64(time.Second))
+	milliseconds, nanoseconds = divmod(nanoseconds, int64(time.Millisecond))
+	microseconds, _ = divmod(nanoseconds, int64(time.Microsecond))
 	return formatInput(years, months, days, hours, minutes, seconds, milliseconds, microseconds), nil
 }

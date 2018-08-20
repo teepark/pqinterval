@@ -24,27 +24,28 @@ type Interval struct {
 
 // New creates an Interval.
 func New(years, days, hours, minutes, seconds, microseconds int) Interval {
-	if years > maxYear || years < minYear || hours > maxHour || hours < minHour {
+	if years > maxYear || years < minYear || int64(hours) > maxHour || hours < minHour {
 		panic("interval outside range")
 	}
-	microseconds += seconds*usPerSec + minutes*usPerMin
 
-	hours += days * 24
-	hours += microseconds / usPerHr
-	microseconds %= usPerHr
+	microsecs := int64(microseconds) + int64(seconds)*usPerSec + int64(minutes)*usPerMin
+	hrs := int64(hours) + int64(days)*24 + microsecs/usPerHr
+	yrs := int64(years)
 
-	if years < 0 {
-		years = (-years) | yrSignBit
+	microsecs %= usPerHr
+
+	if yrs < 0 {
+		yrs = (-yrs) | yrSignBit
 	}
-	if microseconds < 0 {
-		years |= usSignBit
-		microseconds *= -1
+	if microsecs < 0 {
+		yrs |= usSignBit
+		microsecs *= -1
 	}
 
 	return Interval{
-		yrs: uint32(years),
-		hrs: int32(hours),
-		us:  uint32(microseconds),
+		yrs: uint32(yrs),
+		hrs: int32(hrs),
+		us:  uint32(microsecs),
 	}
 }
 
@@ -97,10 +98,10 @@ func (ival *Interval) Scan(src interface{}) error {
 
 // Value implements driver.Valuer.
 func (ival Interval) Value() (driver.Value, error) {
-	var years, months, days, hours, mins, secs, msecs, usecs int
-	years = int(ival.Years())
-	hours = int(ival.Hours())
-	usecs = int(ival.Microseconds())
+	var years, months, days, hours, mins, secs, msecs, usecs int64
+	years = int64(ival.Years())
+	hours = int64(ival.Hours())
+	usecs = int64(ival.Microseconds())
 	days, hours = divmod(hours, 24)
 	mins, usecs = divmod(usecs, usPerMin)
 	secs, usecs = divmod(usecs, usPerSec)
@@ -110,7 +111,7 @@ func (ival Interval) Value() (driver.Value, error) {
 
 // formatValue produces a string in the format that postgres expects for interval input.
 // (https://www.postgresql.org/docs/current/static/datatype-datetime.html#DATATYPE-INTERVAL-INPUT)
-func formatInput(years, months, days, hours, mins, secs, msecs, usecs int) string {
+func formatInput(years, months, days, hours, mins, secs, msecs, usecs int64) string {
 	pieces := make([]string, 0, 8)
 	if years != 0 {
 		pieces = append(pieces, fmt.Sprintf("%d years", years))
@@ -139,7 +140,7 @@ func formatInput(years, months, days, hours, mins, secs, msecs, usecs int) strin
 	return strings.Join(pieces, " ")
 }
 
-func divmod(num int, denom int) (int, int) {
+func divmod(num int64, denom int64) (int64, int64) {
 	return num / denom, num % denom
 }
 
